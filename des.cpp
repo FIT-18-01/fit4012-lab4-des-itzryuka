@@ -269,8 +269,53 @@ public:
         return feistel_network(input, false);
     }
 
+    // Hàm giải mã DES
     string decrypt(const string& input) {
-        return feistel_network(input, true);
+        // Permutation ban đầu
+        string perm = initial_permutation(input);
+
+        // Chia trái, phải
+        string left = perm.substr(0, 32);
+        string right = perm.substr(32, 32);
+
+        // 16 Feistel rounds (LƯU Ý: VÒNG LẶP CHẠY NGƯỢC TỪ 15 VỀ 0)
+        for (int i = 15; i >= 0; i--) {
+            string right_expanded = "";
+            for (int j = 0; j < 48; j++) {
+                right_expanded += right[expansion_table[j] - 1];
+            }
+
+            // XOR với round key
+            string xored = Xor(round_keys[i], right_expanded);
+
+            // S-box substitution
+            string res = "";
+            for (int j = 0; j < 8; j++) {
+                string row1 = xored.substr(j * 6, 1) + xored.substr(j * 6 + 5, 1);
+                int row = convert_binary_to_decimal(row1);
+                string col1 = xored.substr(j * 6 + 1, 4);
+                int col = convert_binary_to_decimal(col1);
+                int val = substition_boxes[j][row][col];
+                res += convert_decimal_to_binary(val);
+            }
+
+            string perm2 = "";
+            for (int j = 0; j < 32; j++) {
+                perm2 += res[permutation_tab[j] - 1];
+            }
+
+            string new_right = Xor(perm2, left);
+            left = right;
+            right = new_right;
+        }
+
+        // Gộp lại
+        string combined_text = right + left;
+
+        // Permutation ngược
+        string plaintext = inverse_initial_permutation(combined_text);
+
+        return plaintext;
     }
 };
 
@@ -310,21 +355,58 @@ int main() {
         string ciphertext, key;
         cin >> ciphertext >> key;
 
-        // TODO: Gọi hàm giải mã
+        KeyGenerator keygen(key); keygen.generateRoundKeys();
+        DES des(keygen.getRoundKeys());
+
+        string final_plaintext = "";
+        for (size_t i = 0; i < ciphertext.length(); i += 64) {
+            string block = ciphertext.substr(i, 64);
+            final_plaintext += des.decrypt(block);
+        }
+        cout << final_plaintext << endl;
     }
     else if (mode == 3) {
         // Mode 3: TripleDES encrypt
         string plaintext, k1, k2, k3;
         cin >> plaintext >> k1 >> k2 >> k3;
 
-        // TODO: Gọi mã hóa 3DES
+        // Zero Padding
+        while (plaintext.length() % 64 != 0) { plaintext += "0"; }
+
+        KeyGenerator keygen1(k1); keygen1.generateRoundKeys(); DES des1(keygen1.getRoundKeys());
+        KeyGenerator keygen2(k2); keygen2.generateRoundKeys(); DES des2(keygen2.getRoundKeys());
+        KeyGenerator keygen3(k3); keygen3.generateRoundKeys(); DES des3(keygen3.getRoundKeys());
+
+        string final_ciphertext = "";
+        for (size_t i = 0; i < plaintext.length(); i += 64) {
+            string block = plaintext.substr(i, 64);
+            // E(K1) -> D(K2) -> E(K3)
+            string step1 = des1.encrypt(block);
+            string step2 = des2.decrypt(step1);
+            string step3 = des3.encrypt(step2);
+            final_ciphertext += step3;
+        }
+        cout << final_ciphertext << endl;
     }
     else if (mode == 4) {
         // Mode 4: TripleDES decrypt
         string ciphertext, k1, k2, k3;
         cin >> ciphertext >> k1 >> k2 >> k3;
 
-        // TODO: Gọi giải mã 3DES
+        KeyGenerator keygen1(k1); keygen1.generateRoundKeys(); DES des1(keygen1.getRoundKeys());
+        KeyGenerator keygen2(k2); keygen2.generateRoundKeys(); DES des2(keygen2.getRoundKeys());
+        KeyGenerator keygen3(k3); keygen3.generateRoundKeys(); DES des3(keygen3.getRoundKeys());
+
+        string final_plaintext = "";
+        for (size_t i = 0; i < ciphertext.length(); i += 64) {
+            string block = ciphertext.substr(i, 64);
+            // Giải mã TripleDES: D(K3) -> E(K2) -> D(K1)
+            string step1 = des3.decrypt(block);
+            string step2 = des2.encrypt(step1);
+            string step3 = des1.decrypt(step2);
+            final_plaintext += step3;
+        }
+        cout << final_plaintext << endl;
     }
 
     return 0;
