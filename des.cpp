@@ -285,13 +285,25 @@ int main() {
         string plaintext, key;
         cin >> plaintext >> key;
 
-        // TODO: Đưa logic mã hóa DES hiện tại của bạn vào đây
-        // Gợi ý:
-        // KeyGenerator keygen(key);
-        // keygen.generateRoundKeys(); 
-        // DES des(keygen.getRoundKeys());
-        // string ciphertext = des.encrypt(plaintext);
-        // cout << ciphertext << endl; 
+        // 1. Thực hiện Zero Padding nếu độ dài không phải bội số của 64
+        while (plaintext.length() % 64 != 0) {
+            plaintext += "0";
+        }
+
+        // 2. Khởi tạo khóa
+        KeyGenerator keygen(key);
+        keygen.generateRoundKeys();
+        DES des(keygen.getRoundKeys());
+
+        // 3. Cắt từng block 64-bit ra để mã hóa và ghép kết quả lại
+        string final_ciphertext = "";
+        for (size_t i = 0; i < plaintext.length(); i += 64) {
+            string block = plaintext.substr(i, 64);
+            final_ciphertext += des.encrypt(block);
+        }
+
+        // 4. In ra kết quả ciphertext cuối cùng (CI sẽ quét dòng này)
+        cout << final_ciphertext << endl;
     }
     else if (mode == 2) {
         // Mode 2: DES decrypt
