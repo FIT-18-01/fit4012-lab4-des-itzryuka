@@ -57,7 +57,7 @@ cmake --build build
 
 ## 3. Input / Đầu vào
 
-TODO_STUDENT: Mô tả rõ đầu vào của chương trình sau khi em hoàn thiện bài lab.
+Đầu vào của chương trình được nhập trực tiếp từ bàn phím thông qua standard input (stdin). Tùy thuộc vào chế độ (mode) người dùng chọn (1, 2, 3, hoặc 4), chương trình sẽ yêu cầu nhập dòng tiếp theo là plaintext/ciphertext (định dạng nhị phân) và các dòng tiếp theo nữa là key (64-bit nhị phân). Nếu chuỗi văn bản dài hơn 64-bit, chương trình sẽ tự động chia thành các block.
 
 Gợi ý nên nêu:
 - plaintext đang được nhập như thế nào
@@ -67,7 +67,7 @@ Gợi ý nên nêu:
 
 ## 4. Output / Đầu ra
 
-TODO_STUDENT: Mô tả rõ đầu ra của chương trình.
+Đầu ra của chương trình là kết quả mã hóa (ciphertext) hoặc giải mã (plaintext) cuối cùng được in ra dưới dạng một chuỗi nhị phân liên tục. Chuỗi này đảm bảo độ dài là bội số của 64.
 
 Gợi ý nên nêu:
 - ciphertext hiển thị ra sao
@@ -77,7 +77,7 @@ Gợi ý nên nêu:
 
 ## 5. Padding đang dùng
 
-TODO_STUDENT: Giải thích cơ chế padding em dùng.
+Chương trình sử dụng Zero Padding. Nếu plaintext không đủ 64 bit hoặc các block bị lẻ bit, các khoảng trống sẽ được lấp đầy bằng các bit '0' cho đến khi đủ độ dài 64-bit của block. Mặc dù dễ cài đặt, phương pháp này có hạn chế lớn là không thể phân biệt được đâu là dữ liệu thật kết thúc bằng '0' và đâu là bit padding.
 
 Gợi ý:
 - nếu plaintext dài hơn 64 bit thì chia block như thế nào
@@ -123,7 +123,7 @@ Trước khi nộp, cần có:
 - `tests/` với ít nhất 5 test
 - có negative test cho `tamper` và `wrong key`
 - `logs/` có ít nhất 1 file minh chứng thật
-- không còn dòng `TODO_STUDENT`
+- không còn dòng placeholder nào.
 
 ## 10. Lưu ý về CI
 
@@ -132,7 +132,7 @@ CI sẽ **không chỉ kiểm tra file có tồn tại** mà còn kiểm tra:
 - các mục bắt buộc trong report
 - sự hiện diện của negative tests
 - có minh chứng trong `logs/`
-- repo **không còn placeholder `TODO_STUDENT`**
+- repo không còn các từ khóa cần điền.
 
 Vì vậy repo starter này sẽ **chưa pass CI** cho tới khi sinh viên hoàn thiện nội dung.
 
